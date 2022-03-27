@@ -1,6 +1,10 @@
-
-import type { Ref } from 'vue'
 import type { BlockState } from '~/type'
+
+interface playState{
+  mineGenerator: boolean
+  gameState: 'play'|'won'|'lose'
+  block: BlockState[][]
+}
 
 const position = [
   [1, 0],
@@ -14,25 +18,35 @@ const position = [
 ]
 
 export class Play {
-  state = ref() as Ref<BlockState[][]>
-  mineGenerator = false
-  gameState = ref<'play'|'won'|'lose'>('play')
+  // state = ref() as Ref<BlockState[][]>
+  // mineGenerator = false
+  // gameState = ref<'play'|'won'|'lose'>('play')
+
+  state = ref<playState>({
+    mineGenerator: false,
+    gameState: 'play',
+    block: [],
+  })
 
   constructor(public height: number, public width: number) {
     this.reset()
   }
 
   reset() {
-    this.state.value = Array.from({ length: this.height }, (_, y) => (
-      Array.from({ length: this.width }, (_, x): BlockState => ({
-        x, y, adjanceMine: 0, reversed: false,
-      }))),
-    )
+    this.state.value = {
+      mineGenerator: false,
+      gameState: 'play',
+      block: Array.from({ length: this.height }, (_, y) => (
+        Array.from({ length: this.width }, (_, x): BlockState => ({
+          x, y, adjanceMine: 0, reversed: false,
+        }))),
+      ),
+    }
   }
 
   // 右键
   onRightClick(block: BlockState) {
-    if (this.gameState.value !== 'play')
+    if (this.state.value.gameState !== 'play')
       return
 
     if (block.reversed)
@@ -44,7 +58,7 @@ export class Play {
 
   // 生成炸弹
   createMine(initialize: BlockState) {
-    for (const row of this.state.value) {
+    for (const row of this.state.value.block) {
       for (const block of row) {
         if (Math.abs(initialize.x - block.x) <= 1)
           continue
@@ -60,7 +74,7 @@ export class Play {
 
   // 生成数字
   createNumber() {
-    this.state.value.forEach((row) => {
+    this.state.value.block.forEach((row) => {
       row.forEach((block) => {
         if (block.mine)
           return
@@ -80,7 +94,7 @@ export class Play {
       if (x2 < 0 || x2 >= this.width || y2 < 0 || y2 >= this.height)
         return undefined
 
-      return this.state.value[y2][x2]
+      return this.state.value.block[y2][x2]
     }).filter(Boolean) as BlockState[]
   }
 
@@ -99,7 +113,7 @@ export class Play {
 
   // 展开所有炸弹
   showAllMine() {
-    const blocks = this.state.value.flat()
+    const blocks = this.state.value.block.flat()
     blocks.forEach((b) => {
       if (b.mine)
         b.reversed = true
@@ -108,12 +122,12 @@ export class Play {
 
   // 点击
   onClick(block: BlockState) {
-    if (this.gameState.value !== 'play')
+    if (this.state.value.gameState !== 'play')
       return
 
-    if (!this.mineGenerator) {
+    if (!this.state.value.mineGenerator) {
       this.createMine(block)
-      this.mineGenerator = true
+      this.state.value.mineGenerator = true
     }
 
     if (block.flagged)
@@ -122,7 +136,7 @@ export class Play {
     block.reversed = true
 
     if (block.mine) {
-      this.gameState.value = 'lose'
+      this.state.value.gameState = 'lose'
       this.showAllMine()
     }
 
@@ -132,16 +146,16 @@ export class Play {
 
   // 检查胜利
   checkGameState() {
-    if (!this.mineGenerator)
+    if (!this.state.value.mineGenerator)
       return
 
-    const blocks = this.state.value.flat()
+    const blocks = this.state.value.block.flat()
 
     if (blocks.every(b => b.reversed || b.flagged)) {
       if (blocks.some(b => b.flagged && !b.mine))
-        this.gameState.value = 'lose'
+        this.state.value.gameState = 'lose'
       else
-        this.gameState.value = 'won'
+        this.state.value.gameState = 'won'
     }
   }
 }

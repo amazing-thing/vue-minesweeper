@@ -5,6 +5,7 @@ interface playState{
   mineGenerator: boolean
   gameState: 'play'|'won'|'lose'
   block: BlockState[][]
+  startTime: number
 }
 
 const position = [
@@ -29,8 +30,15 @@ export class Play {
     this.reset()
   }
 
-  reset() {
+  reset(height = this.height,
+    width = this.width,
+    mines = this.mines) {
+    this.height = height
+    this.width = width
+    this.mines = mines
+
     this.state.value = {
+      startTime: +Date.now(),
       mineGenerator: false,
       gameState: 'play',
       block: Array.from({ length: this.height }, (_, y) => (
@@ -77,9 +85,7 @@ export class Play {
 
       const block = this.state.value.block[y][x]
 
-      if (Math.abs(initialize.x - block.x) <= 1)
-        return false
-      if (Math.abs(initialize.y - block.y) <= 1)
+      if (Math.abs(initialize.x - block.x) <= 1 && Math.abs(initialize.y - block.y) <= 1)
         return false
 
       if (block.mine)

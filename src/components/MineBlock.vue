@@ -32,7 +32,7 @@ function getNumberClass(block: BlockState) {
     flex="~" items-center justify-center
     min-w10 min-h10
     border="1 gray-400/10"
-    m=".2"
+
     :class="getNumberClass(item)"
   >
     <template v-if="item.flagged">
@@ -40,7 +40,7 @@ function getNumberClass(block: BlockState) {
     </template>
     <template v-else-if="item.reversed || isDev">
       <div v-if="item.mine" class="i-mdi-mine" bg-red-500 />
-      <div v-else>
+      <div v-else font-bold>
         {{ item.adjanceMine }}
       </div>
     </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Play, isDev, toggleDev } from '~/composables/index'
 
-const play = new Play(10, 10, 20)
+const play = new Play(10, 10, 10)
 useStorage('vue-Minesweeper', play.state)
 const state = computed(() => play.state.value.block)
 const mine = computed(() => play.blocks.reduce((sum, b) => sum + (b.mine ? 1 : 0), 0))
@@ -36,4 +36,6 @@ const mine = computed(() => play.blocks.reduce((sum, b) => sum + (b.mine ? 1 : 0
       </button>
     </div>
   </div>
+
+  <CanvasConfetti :passed="play.state.value.gameState==='won'" />
 </template>

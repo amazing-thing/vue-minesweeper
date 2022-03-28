@@ -140,8 +140,10 @@ export class Play {
   showAllMine() {
     const blocks = this.blocks
     blocks.forEach((b) => {
-      if (b.mine)
+      if (b.mine) {
+        b.flagged = false
         b.reversed = true
+      }
     })
   }
 
@@ -177,10 +179,13 @@ export class Play {
     const blocks = this.blocks
 
     if (blocks.every(b => b.reversed || b.flagged)) {
-      if (blocks.some(b => b.flagged && !b.mine))
+      if (blocks.some(b => b.flagged && !b.mine)) {
         this.state.value.gameState = 'lose'
-      else
+        this.showAllMine()
+      }
+      else {
         this.state.value.gameState = 'won'
+      }
     }
   }
 }

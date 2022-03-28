@@ -51,6 +51,7 @@ export class Play {
           x,
           y,
           adjanceMine: 0,
+          reversed: false,
         }))),
       ),
     }
@@ -199,6 +200,10 @@ export class Play {
   autoExpend(block: BlockState, isPhone?: boolean) {
     if (this.state.value.status !== 'play')
       return
+
+    if (block.flagged)
+      return
+
     const s = this.generator(block)
     const count = s.reduce((a, b) => a + (b.flagged ? 1 : 0), 0)
     if (count === block.adjanceMine) {
@@ -206,7 +211,11 @@ export class Play {
         if (i.mine !== i.flagged)
           this.gameOver('lose')
 
-        i.reversed = true
+        if (!i.flagged)
+          i.reversed = true
+
+        if (i.adjanceMine === 0 && !i.mine)
+          this.expendeZero(i)
       })
     }
     else {
@@ -223,7 +232,7 @@ export class Play {
     if (isPhone) {
       const mine = s.reduce((a, b) => a + (b.mine ? 1 : 0), 0)
       const revers = s.reduce((a, b) => a + (!b.reversed ? 1 : 0), 0)
-      if (mine === block.adjanceMine && (revers + count) === block.adjanceMine) {
+      if (mine === block.adjanceMine && revers === block.adjanceMine) {
         s.forEach((i) => {
           if (!i.reversed && i.mine)
             i.flagged = true

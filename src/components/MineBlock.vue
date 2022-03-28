@@ -29,9 +29,8 @@ function getNumberClass(block: BlockState) {
 
 <template>
   <button
-
     flex="~" items-center justify-center
-    w10 h10
+    min-w10 min-h10
     border="1 gray-400/10"
     m=".2"
     :class="getNumberClass(item)"

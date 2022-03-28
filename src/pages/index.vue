@@ -3,6 +3,7 @@ import { Play, isDev, toggleDev } from '~/composables/index'
 import type { BlockState } from '~/type'
 
 let isPhone = $ref(false)
+useTitle('Minesweeper')
 
 function userAgen() {
   const ua = navigator.userAgent

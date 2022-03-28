@@ -40,6 +40,7 @@ export class Play {
     this.height = height
     this.width = width
     this.mines = mines
+    clearTimeout(this.timer.value)
 
     this.state.value = {
       // startTime: +Date.now(),
@@ -214,12 +215,10 @@ export class Play {
           i.heightLine = true
           this.timer.value = window.setTimeout(() => {
             i.heightLine = false
-            clearTimeout(this.timer.value)
           }, 100)
         }
       })
     }
-
     this.checkstatus()
   }
 

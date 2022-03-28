@@ -34,7 +34,6 @@ function choiceDifficulty(difficulty: 'easy'|'medium'|'hard') {
       break
   }
 }
-
 </script>
 
 <template>
@@ -72,6 +71,7 @@ function choiceDifficulty(difficulty: 'easy'|'medium'|'hard') {
         <MineBlock
           v-for="item,x in row" :key="x"
           :item="item"
+          :class="item.heightLine?'bg-gray-600/60':''"
           @click="play.onClick(item)"
           @dblclick="play.autoExpend(item)"
           @contextmenu.prevent="play.onRightClick(item)"

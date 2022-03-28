@@ -24,6 +24,7 @@ const position = [
 
 export class Play {
   state = ref() as Ref<playState>
+  timer = ref<number>()
 
   constructor(
     public height: number,
@@ -49,7 +50,6 @@ export class Play {
           x,
           y,
           adjanceMine: 0,
-          reversed: false,
         }))),
       ),
     }
@@ -189,7 +189,6 @@ export class Play {
     if (blocks.every(b => b.reversed || b.flagged || b.mine)) {
       if (blocks.some(b => b.flagged && !b.mine))
         this.gameOver('lose')
-
       else
         this.gameOver('won')
     }
@@ -197,6 +196,8 @@ export class Play {
 
   // 双键
   autoExpend(block: BlockState) {
+    if (this.state.value.status !== 'play')
+      return
     const s = this.generator(block)
     const count = s.reduce((a, b) => a + (b.flagged ? 1 : 0), 0)
     if (count === block.adjanceMine) {
@@ -208,8 +209,14 @@ export class Play {
       })
     }
     else {
-      s.forEach(() => {
-
+      s.forEach((i) => {
+        if (!i.reversed && !i.flagged) {
+          i.heightLine = true
+          this.timer.value = window.setTimeout(() => {
+            i.heightLine = false
+            clearTimeout(this.timer.value)
+          }, 100)
+        }
       })
     }
 

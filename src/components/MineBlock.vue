@@ -32,7 +32,6 @@ function getNumberClass(block: BlockState) {
     flex="~" items-center justify-center
     min-w10 min-h10
     border="1 gray-400/10"
-
     :class="getNumberClass(item)"
   >
     <template v-if="item.flagged">

@@ -1,11 +1,14 @@
 import type { Ref } from 'vue'
 import type { BlockState } from '~/type'
 
+type GameState='play'|'won'|'lose'
+
 interface playState{
   mineGenerator: boolean
-  gameState: 'play'|'won'|'lose'
+  status: GameState
   block: BlockState[][]
-  startTime: number
+  startTime?: number
+  endTime?: number
 }
 
 const position = [
@@ -38,9 +41,9 @@ export class Play {
     this.mines = mines
 
     this.state.value = {
-      startTime: +Date.now(),
+      // startTime: +Date.now(),
       mineGenerator: false,
-      gameState: 'play',
+      status: 'play',
       block: Array.from({ length: this.height }, (_, y) => (
         Array.from({ length: this.width }, (_, x): BlockState => ({
           x,
@@ -58,14 +61,14 @@ export class Play {
 
   // 右键
   onRightClick(block: BlockState) {
-    if (this.state.value.gameState !== 'play')
+    if (this.state.value.status !== 'play')
       return
 
     if (block.reversed)
       return
 
     block.flagged = !block.flagged
-    this.checkGameState()
+    this.checkstatus()
   }
 
   // min-max之间随机数
@@ -155,10 +158,11 @@ export class Play {
 
   // 点击
   onClick(block: BlockState) {
-    if (this.state.value.gameState !== 'play')
+    if (this.state.value.status !== 'play')
       return
 
     if (!this.state.value.mineGenerator) {
+      this.state.value.startTime = +Date.now()
       this.createMine(block)
       this.state.value.mineGenerator = true
     }
@@ -168,30 +172,55 @@ export class Play {
 
     block.reversed = true
 
-    if (block.mine) {
-      this.state.value.gameState = 'lose'
-      this.showAllMine()
-    }
+    if (block.mine)
+      this.gameOver('lose')
 
     this.expendeZero(block)
-    this.checkGameState()
+    this.checkstatus()
   }
 
   // 检查胜利
-  checkGameState() {
+  checkstatus() {
     if (!this.state.value.mineGenerator)
       return
 
     const blocks = this.blocks
 
-    if (blocks.every(b => b.reversed || b.flagged)) {
-      if (blocks.some(b => b.flagged && !b.mine)) {
-        this.state.value.gameState = 'lose'
-        this.showAllMine()
-      }
-      else {
-        this.state.value.gameState = 'won'
-      }
+    if (blocks.every(b => b.reversed || b.flagged || b.mine)) {
+      if (blocks.some(b => b.flagged && !b.mine))
+        this.gameOver('lose')
+
+      else
+        this.gameOver('won')
     }
+  }
+
+  // 双键
+  autoExpend(block: BlockState) {
+    const s = this.generator(block)
+    const count = s.reduce((a, b) => a + (b.flagged ? 1 : 0), 0)
+    if (count === block.adjanceMine) {
+      s.forEach((i) => {
+        if (i.mine !== i.flagged)
+          this.gameOver('lose')
+
+        i.reversed = true
+      })
+    }
+    else {
+      s.forEach(() => {
+
+      })
+    }
+
+    this.checkstatus()
+  }
+
+  gameOver(status: GameState) {
+    this.state.value.status = status
+    this.state.value.endTime = +Date.now()
+
+    if (status === 'lose')
+      this.showAllMine()
   }
 }

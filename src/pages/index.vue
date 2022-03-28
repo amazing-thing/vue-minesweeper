@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { Play, isDev, toggleDev } from '~/composables/index'
 
-const play = new Play(10, 10, 10)
+const play = new Play(9, 9, 10)
 useStorage('vue-Minesweeper', play.state)
 
 const now = $(useNow())
-const time = computed(() => Math.round((+now - play.state.value.startTime) / 1000))
+const time = computed(() => {
+  if (!play.state.value.startTime)
+    return 0
+
+  return Math.round(((play.state.value.endTime || +now) - play.state.value.startTime) / 1000)
+})
 
 const state = computed(() => play.state.value.block)
 const mine = computed(() => play.blocks.reduce((sum, b) => {
@@ -68,6 +73,7 @@ function choiceDifficulty(difficulty: 'easy'|'medium'|'hard') {
           v-for="item,x in row" :key="x"
           :item="item"
           @click="play.onClick(item)"
+          @dblclick="play.autoExpend(item)"
           @contextmenu.prevent="play.onRightClick(item)"
         />
       </div>
@@ -82,5 +88,5 @@ function choiceDifficulty(difficulty: 'easy'|'medium'|'hard') {
     </div>
   </div>
 
-  <CanvasConfetti :passed="play.state.value.gameState==='won'" />
+  <CanvasConfetti :passed="play.state.value.status==='won'" />
 </template>

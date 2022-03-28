@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Play, isDev, toggleDev } from '~/composables/index'
+import type { BlockState } from '~/type'
 
 const play = new Play(9, 9, 10)
 useStorage('vue-Minesweeper', play.state)
@@ -33,6 +34,11 @@ function choiceDifficulty(difficulty: 'easy'|'medium'|'hard') {
       play.reset(30, 16, 99)
       break
   }
+}
+
+function LRClick(e: MouseEvent, item: BlockState) {
+  if (e.buttons === 3)
+    play.autoExpend(item)
 }
 </script>
 
@@ -73,6 +79,7 @@ function choiceDifficulty(difficulty: 'easy'|'medium'|'hard') {
           :item="item"
           :class="item.heightLine?'bg-gray-600/60':''"
           @click="play.onClick(item)"
+          @mousedown="LRClick($event, item)"
           @dblclick="play.autoExpend(item)"
           @contextmenu.prevent="play.onRightClick(item)"
         />

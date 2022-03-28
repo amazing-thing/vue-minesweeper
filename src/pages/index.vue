@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Play, isDev, toggleDev } from '~/composables/index'
 
-const play = new Play(10, 10)
+const play = new Play(10, 10, 20)
 useStorage('vue-Minesweeper', play.state)
 const state = computed(() => play.state.value.block)
+const mine = computed(() => play.blocks.reduce((sum, b) => sum + (b.mine ? 1 : 0), 0))
 </script>
 
 <template>
@@ -21,6 +22,9 @@ const state = computed(() => play.state.value.block)
           @contextmenu.prevent="play.onRightClick(item)"
         />
       </div>
+    </div>
+    <div pb5>
+      Mine Count:{{ mine }}
     </div>
     <div flex="~ gap-1" justify-center>
       <button btn @click="toggleDev()">

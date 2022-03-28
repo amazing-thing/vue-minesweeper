@@ -1,3 +1,4 @@
+import type { Ref } from 'vue'
 import type { BlockState } from '~/type'
 
 interface playState{
@@ -18,17 +19,13 @@ const position = [
 ]
 
 export class Play {
-  // state = ref() as Ref<BlockState[][]>
-  // mineGenerator = false
-  // gameState = ref<'play'|'won'|'lose'>('play')
+  state = ref() as Ref<playState>
 
-  state = ref<playState>({
-    mineGenerator: false,
-    gameState: 'play',
-    block: [],
-  })
-
-  constructor(public height: number, public width: number) {
+  constructor(
+    public height: number,
+    public width: number,
+    public mines: number,
+  ) {
     this.reset()
   }
 
@@ -38,10 +35,17 @@ export class Play {
       gameState: 'play',
       block: Array.from({ length: this.height }, (_, y) => (
         Array.from({ length: this.width }, (_, x): BlockState => ({
-          x, y, adjanceMine: 0, reversed: false,
+          x,
+          y,
+          adjanceMine: 0,
+          reversed: false,
         }))),
       ),
     }
+  }
+
+  get blocks() {
+    return this.state.value.block.flat()
   }
 
   // 右键
@@ -56,18 +60,39 @@ export class Play {
     this.checkGameState()
   }
 
+  // min-max之间随机数
+  random(min: number, max: number) {
+    return Math.random() * (max - min) + min
+  }
+
+  intRandom(min: number, max: number) {
+    return Math.round(this.random(min, max))
+  }
+
   // 生成炸弹
   createMine(initialize: BlockState) {
-    for (const row of this.state.value.block) {
-      for (const block of row) {
-        if (Math.abs(initialize.x - block.x) <= 1)
-          continue
-        if (Math.abs(initialize.y - block.y) <= 1)
-          continue
+    const updateMine = () => {
+      const x = this.intRandom(0, this.width - 1)
+      const y = this.intRandom(0, this.height - 1)
 
-        block.mine = Math.random() < 0.2
-      }
+      const block = this.state.value.block[y][x]
+
+      if (Math.abs(initialize.x - block.x) <= 1)
+        return false
+      if (Math.abs(initialize.y - block.y) <= 1)
+        return false
+
+      if (block.mine)
+        return false
+      block.mine = true
+      return true
     }
+
+    Array.from({ length: this.mines }, () => null).forEach(() => {
+      let place = false
+      while (!place)
+        place = updateMine()
+    })
 
     this.createNumber()
   }
@@ -113,7 +138,7 @@ export class Play {
 
   // 展开所有炸弹
   showAllMine() {
-    const blocks = this.state.value.block.flat()
+    const blocks = this.blocks
     blocks.forEach((b) => {
       if (b.mine)
         b.reversed = true
@@ -149,7 +174,7 @@ export class Play {
     if (!this.state.value.mineGenerator)
       return
 
-    const blocks = this.state.value.block.flat()
+    const blocks = this.blocks
 
     if (blocks.every(b => b.reversed || b.flagged)) {
       if (blocks.some(b => b.flagged && !b.mine))

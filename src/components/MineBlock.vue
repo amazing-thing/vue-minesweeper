@@ -7,12 +7,11 @@ defineProps<{ item: BlockState }>()
 const numberClass = [
   'text-transparent',
   'text-blue',
-  'text-grenn',
+  'text-green',
   'text-yellow',
   'text-orange',
   'text-teal',
   'text-blue',
-  'text-',
 ]
 
 // 数字颜色

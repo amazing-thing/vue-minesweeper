@@ -195,8 +195,8 @@ export class Play {
     }
   }
 
-  // 双键
-  autoExpend(block: BlockState) {
+  // 双击
+  autoExpend(block: BlockState, isPhone?: boolean) {
     if (this.state.value.status !== 'play')
       return
     const s = this.generator(block)
@@ -218,6 +218,17 @@ export class Play {
           }, 100)
         }
       })
+    }
+
+    if (isPhone) {
+      const mine = s.reduce((a, b) => a + (b.mine ? 1 : 0), 0)
+      const revers = s.reduce((a, b) => a + (!b.reversed ? 1 : 0), 0)
+      if (mine === block.adjanceMine && (revers + count) === block.adjanceMine) {
+        s.forEach((i) => {
+          if (!i.reversed && i.mine)
+            i.flagged = true
+        })
+      }
     }
     this.checkstatus()
   }

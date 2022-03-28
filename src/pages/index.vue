@@ -2,7 +2,23 @@
 import { Play, isDev, toggleDev } from '~/composables/index'
 import type { BlockState } from '~/type'
 
+let isPhone = $ref(false)
+
+function userAgen() {
+  const ua = navigator.userAgent
+  const ipad = ua.match(/(iPad).*OS\s([\d_]+)/)
+  const isIphone = !ipad && ua.match(/(iPhone\sOS)\s([\d_]+)/)
+  const isAndroid = ua.match(/(Android)\s+([\d.]+)/)
+  const isMobile = isIphone || isAndroid
+
+  if (isMobile)
+    isPhone = true
+}
+
+userAgen()
+
 const play = new Play(9, 9, 10)
+
 useStorage('vue-Minesweeper', play.state)
 
 const now = $(useNow())
@@ -80,7 +96,7 @@ function LRClick(e: MouseEvent, item: BlockState) {
           :class="item.heightLine?'bg-gray-600/60':''"
           @click="play.onClick(item)"
           @mousedown="LRClick($event, item)"
-          @dblclick="play.autoExpend(item)"
+          @dblclick="play.autoExpend(item, isPhone)"
           @contextmenu.prevent="play.onRightClick(item)"
         />
       </div>

@@ -60,7 +60,7 @@ function LRClick(e: MouseEvent, item: BlockState) {
 }
 
 watch(time, () => {
-  if (time.value === 999)
+  if (time.value >= 999)
     pause()
 })
 </script>

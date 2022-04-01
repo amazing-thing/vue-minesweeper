@@ -22,7 +22,7 @@ const play = new Play(9, 9, 10)
 
 useStorage('vue-Minesweeper', play.state)
 
-const { now, pause } = $(useNow({ controls: true }))
+const now = $(useNow())
 
 const time = computed(() => {
   if (!play.state.value.startTime)
@@ -58,11 +58,6 @@ function LRClick(e: MouseEvent, item: BlockState) {
   if (e.buttons === 3)
     play.autoExpend(item)
 }
-
-watch(time, () => {
-  if (time.value >= 999)
-    pause()
-})
 </script>
 
 <template>
